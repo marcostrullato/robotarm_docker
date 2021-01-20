@@ -21,8 +21,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ros-melodic-catkin python-
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools iputils-ping screen
 
 #Robot Arm Setup
-RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; mkdir -p /rosarm_ws/src; cd /rosarm_ws/; catkin init; cd /rosarm_ws/src; git clone https://github.com/marcostrullato/ebamk2_description.git; git clone https://github.com/marcostrullato/rosarm_control.git; cd /tmp/; git clone https://github.com/marcostrullato/ntbd.git; mv /tmp/ntbd/NTBD_base/ntbd_* /rosarm_ws/src; cd /rosarm_ws; rosdep update; catkin build
-#RUN echo "source /rosarm_ws/devel/setup.bash" >> /root/.bashrc
+RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; mkdir -p /robotarm_ws/src; cd /robotarm_ws/; catkin init; cd /robotarm_ws/src; git clone https://github.com/marcostrullato/robotarm_description.git; git clone https://github.com/marcostrullato/robotarm_control.git; cd /tmp/; git clone https://github.com/marcostrullato/robotarm_ntbd.git; mv /tmp/robotarm_ntbd/NTBD_base/ntbd_* /robotarm_ws/src; cd /robotarm_ws; rosdep update; catkin build
+RUN echo "source /robotarm_ws/devel/setup.bash" >> /root/.bashrc
 RUN usermod -a -G dialout root
 
 #Cleanup
