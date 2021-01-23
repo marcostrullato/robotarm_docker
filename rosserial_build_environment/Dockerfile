@@ -17,7 +17,7 @@ ENV ROS_DISTRO=melodic
 #Updates and install required packages
 RUN apt-get update;
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ros-melodic-catkin python-catkin-tools python-rosdep build-essential pkg-config screen
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ros-melodic-catkin python-catkin-tools python-rosdep build-essential pkg-config screen wget 
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools iputils-ping screen
 
 RUN usermod -a -G dialout root
