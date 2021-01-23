@@ -24,21 +24,17 @@ RUN usermod -a -G dialout root
 
 #Setup Arduino
 RUN mkdir -p ~/Arduino/libraries
-#RUN cd /tmp; wget https://github.com/arduino/Arduino/releases/download/1.8.13/arduino-1.8.13.tar.xz 
-COPY arduino-1.8.13-linux64.tar.xz /tmp
+RUN cd /tmp; wget https://downloads.arduino.cc/arduino-1.8.13-linux64.tar.xz 
+#COPY arduino-1.8.13-linux64.tar.xz /tmp
 COPY AccelStepper.tar.gz /root/Arduino/libraries/AccelStepper.tar.gz
 COPY ros_arm_stepper_A4988_accelstepper_joint_states/ros_arm_stepper_A4988_accelstepper_joint_states.ino /tmp/firmware.ino
-RUN cd /tmp; tar xf /tmp/arduino-1.8.13-linux64.tar.xz;  
-RUN ls -l ~/Arduino/libraries; 
-RUN cd ~/Arduino/libraries; ls -l; tar xzf AccelStepper.tar.gz; ls -l; rm -f AccelStepper.tar.gz
+RUN cd /tmp; tar xf /tmp/arduino-1.8.13-linux64.tar.xz; rm -f /tmp/arduino-1.8.13-linux64.tar.xz
+RUN cd ~/Arduino/libraries; tar xzf AccelStepper.tar.gz; rm -f AccelStepper.tar.gz
 
 #Robot Arm Setup
-RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; mkdir -p /rosserial_ws/src; cd /rosserial_ws/; catkin init; cd /rosserial_ws/src; git clone https://github.com/ros-drivers/rosserial.git; git checkout melodic-devel; cd /rosserial_ws; catkin_make; catkin_make install; 
+RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; mkdir -p /rosserial_ws/src; cd /rosserial_ws/; catkin init; cd /rosserial_ws/src; git clone https://github.com/ros-drivers/rosserial.git; cd ./rosserial; git checkout melodic-devel; cd /rosserial_ws; catkin_make; catkin_make install; 
 RUN echo "source /rosserial_ws/devel/setup.bash" >> /root/.bashrc
-RUN /bin/bash -c ". /opt/ros/melodic/setup.bash; . /rosserial_ws/devel/setup.bash"; env; cd ~/Arduino/libraries; rm -fr ros_lib; /rosserial_ws/devel/setup.bash;  rosrun rosserial_arduino make_libraries.py .
+RUN chmod a+x /rosserial_ws/devel/setup.bash; /bin/bash -c ". /opt/ros/melodic/setup.bash; . /rosserial_ws/devel/setup.bash; cd ~/Arduino/libraries; rm -fr ros_lib; /rosserial_ws/devel/setup.bash;  rosrun rosserial_arduino make_libraries.py ."
 
-#Cleanup
-#RUN apt-get -y autoremove
-
-
+RUN echo "ENTRYPOINT /tmp/arduino-1.8.13/arduino --upload --port /dev/ttyACM0--pref build.path=/tmp/build --board arduino:avr:mega:cpu=atmega2560 /tmp/firmware.ino" >> /tmp/command.sh
 #RUN /tmp/arduino-1.8.13/arduino --verify --preserve-temp-files --pref build.path=/tmp/build --board arduino:avr:mega:cpu=atmega2560 /tmp/firmware.ino
