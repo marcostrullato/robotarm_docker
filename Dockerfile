@@ -30,23 +30,17 @@ RUN echo "source /robotarm_ws/devel/setup.bash" >> /root/.bashrc
 RUN usermod -a -G dialout root
 
 #Setup IKFast
-RUN mkdir ~/src; cd ~/src; git clone https://github.com/marcostrullato/openrave-installation; cd openrave-installation; git fetch origin pull/22/head:tempbranch; git checkout tempbranch; ./install-dependencies.sh; ./install-osg.sh; ./install-fcl.sh; ./install-openrave.sh
+RUN mkdir ~/src; cd ~/src; git clone https://github.com/marcostrullato/openrave-installation; cd openrave-installation;  ./install-dependencies.sh; ./install-osg.sh; ./install-fcl.sh; ./install-openrave.sh
+#RUN mkdir ~/src; cd ~/src; git clone https://github.com/marcostrullato/openrave-installation; cd openrave-installation; git fetch origin pull/22/head:tempbranch; git checkout tempbranch; ./install-dependencies.sh; ./install-osg.sh; ./install-fcl.sh; ./install-openrave.sh
 RUN apt-get -y install ros-melodic-collada-parser ros-melodic-collada-urdf
 
 #Generate Inverse Kinematics cpp file
 RUN mkdir /robotarm_ws/src/robotarm_description/dae//output/; python /usr/local/lib/python2.7/dist-packages/openravepy/_openravepy_/ikfast.py --robot=/robotarm_ws/src/robotarm_description/dae/belt_robot.dae --iktype=translation3d --baselink=0 --eelink=5 --savefile=/robotarm_ws/src/robotarm_description/dae/output/iktest.cpp
+RUN export MYROBOT_NAME=belt_robot PLANNING_GROUP=belt_robot_planning_group BASE_LINK="0" EEF_LINK="5" ROBOTARMWS=/robotarm_ws/src/robotarm_description; export MOVEIT_IK_PLUGIN_PKG="$MYROBOT_NAME"_ikfast_"$PLANNING_GROUP"_plugin IKFAST_OUTPUT_PATH=$ROBOTARMWS/dae/ikfast_"$PLANNING_GROUP".cpp; /bin/bash -c ". /opt/ros/melodic/setup.bash; . /robotarm_ws/devel/setup.bash"; rosrun collada_urdf urdf_to_collada "$ROBOTARMWS/urdf/$MYROBOT_NAME".urdf "$ROBOTARMWS/dae/$MYROBOT_NAME".dae; python `openrave-config --python-dir`/openravepy/_openravepy_/ikfast.py --robot="$ROBOTARMWS/dae/$MYROBOT_NAME".dae --iktype=translation3d --baselink="$BASE_LINK" --eelink="$EEF_LINK" --savefile="$IKFAST_OUTPUT_PATH"; mkdir -p ~/robotarm_ws/src; cd ~/robotarm_ws/src; catkin_create_pkg "$MOVEIT_IK_PLUGIN_PKG"; cd ~/robotarm_ws; catkin build; /bin/bash -c ". /opt/ros/melodic/setup.bash; . /robotarm_ws/devel/setup.bash"; rosrun moveit_kinematics create_ikfast_moveit_plugin.py "$MYROBOT_NAME" "$PLANNING_GROUP" "$MOVEIT_IK_PLUGIN_PKG" base manipulator "$IKFAST_OUTPUT_PATH"
 
-#export MYROBOT_NAME=belt_robot
-#export PLANNING_GROUP=belt_robot_planning_group
-#export BASE_LINK="0"
-#export EEF_LINK="5"
-#export ROBOTARMWS=/robotarm_ws/src/robotarm_description
-#export MOVEIT_IK_PLUGIN_PKG="$MYROBOT_NAME"_ikfast_"$PLANNING_GROUP"_plugin
-#export IKFAST_OUTPUT_PATH=$ROBOTARMWS/dae/ikfast_"$PLANNING_GROUP".cpp
-#
-#
+
+
 ##generate the dae model
-#source /robotarm_ws/devel/setup.bash 
 #rosrun collada_urdf urdf_to_collada "$ROBOTARMWS/urdf/$MYROBOT_NAME".urdf "$ROBOTARMWS/dae/$MYROBOT_NAME".dae
 #
 #python `openrave-config --python-dir`/openravepy/_openravepy_/ikfast.py --robot="$ROBOTARMWS/dae/$MYROBOT_NAME".dae --iktype=translation3d --baselink="$BASE_LINK" --eelink="$EEF_LINK" --savefile="$IKFAST_OUTPUT_PATH"
