@@ -31,7 +31,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install ros-melodic-catkin python-
 
 #Moveit setup
 RUN rosdep init; rosdep update; mkdir -p ${ROBOTARM_WS}/src; cd ${ROBOTARM_WS}/src; git clone https://github.com/ros-planning/moveit_tutorials.git -b melodic-devel; git clone https://github.com/ros-planning/panda_moveit_config.git -b melodic-devel; cd ${ROBOTARM_WS}/src; rosdep install -y --from-paths . --ignore-src --rosdistro melodic; cd ${ROBOTARM_WS}; catkin config --extend /opt/ros/${ROS_DISTRO} --cmake-args -DCMAKE_BUILD_TYPE=Release; catkin build;
-RUN echo "source /root/ws_moveit/devel/setup.bash" >> /root/.bashrc
+RUN echo "source ${ROBOTARM_WS}/devel/setup.bash" >> /root/.bashrc
 
 #Robot Arm Setup
 RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; \
@@ -45,7 +45,6 @@ RUN /bin/bash -c ". /opt/ros/melodic/setup.bash"; \
     cd $ROBOTARM_WS; \
     rosdep update; \
     catkin build
-RUN echo "source $ROBOTARM_WS/devel/setup.bash" >> /root/.bashrc
 RUN usermod -a -G dialout root
 
 #Setup IKFast
